@@ -1,16 +1,16 @@
 #!/bin/sh
+
 . ./client.conf
 
-# Temporal interface and keys
+# Generate Keys with temporal interface 
 genpriv_key()
 {
-    openssl rand -base64 32 > ${WG_PATH}/${CLIENT}_priv.key
-    ifconfig ${WG_INT_TMP} create wgkey "$(cat ${WG_PATH}/${CLIENT}_priv.key)" wgport ${WG_PORT_TMP}
+openssl rand -base64 32 > ${WG_PATH}/${CLIENT}_priv.key
+ifconfig ${WG_INT_TMP} create wgkey "$(cat ${WG_PATH}/${CLIENT}_priv.key)" wgport ${WG_PORT_TMP}
 }
-
 genpub_key()
 {
-    ifconfig ${WG_INT_TMP} | grep wgpubkey | cut -d ' ' -f 2 > ${WG_PATH}/${CLIENT}_pub.key
+ifconfig ${WG_INT_TMP} | grep wgpubkey | cut -d ' ' -f 2 > ${WG_PATH}/${CLIENT}_pub.key
 }
 
 # Destroy temporal interface
@@ -35,24 +35,24 @@ chmod 600 ${WG_PATH}/*.key
 # WG_INT config
 client_config()
 {
-    echo "[Interface] \n\
+echo "[Interface] \n\
     Address = ${CLIENT_IP} \n\
     DNS = ${WG_IP} \n\
     PrivateKey = $(cat ${WG_PATH}/${CLIENT}_priv.key) \n\
-    [Peer] \n\
+[Peer] \n\
     PublicKey = $(cat ${WG_PATH}/${CONF}_pub.key) \n\
     AllowedIPs = 0.0.0.0/32 \n\
     Endpoint = ${EXT_IP}:${WG_PORT}"\
-    > ${WG_PATH}/${CLIENT}.conf
+> ${WG_PATH}/${CLIENT}.conf
 }
 
 wg_config()
 {
-    echo "# ${CLIENT} \n\
-    [Peer] \n\
+echo "# ${CLIENT} \n\
+[Peer] \n\
     PublicKey = $(cat ${WG_PATH}/${CLIENT}_pub.key) \n\
     AllowedIPs = ${CLIENT_IP}"\
-    >> ${WG_PATH}/${CONF}.conf
+>> ${WG_PATH}/${CONF}.conf
 }
 
 genpriv_key && \
@@ -62,4 +62,3 @@ add_peer && \
 permission && \
 client_config && \
 wg_config
-
