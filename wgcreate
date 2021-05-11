@@ -1,0 +1,47 @@
+#!/bin/sh
+
+. ./server.conf
+
+#sysctl net.inet.ip.forwarding=1
+#echo 'net.inet.ip.forwarding=1' >> /etc/sysctl.conf
+#pkg_add wireguard-tools
+#mkdir -p ${WG_PATH}
+
+# Create interface
+interface()
+{
+echo "inet ${WG_IP} ${WG_NET}\n\
+        description ${CONF}\n\
+        up\n\
+        !/usr/local/bin/wg setconf ${WG_INT} ${WG_PATH}/${CONF}.conf"\
+> /etc/hostname.${WG_INT}
+}
+# Keys
+genpriv_key()
+{
+    openssl rand -base64 32 > ${WG_PATH}/${CONF}_priv.key
+    ifconfig ${WG_INT} create wgkey "$(cat ${WG_PATH}/${CONF}_priv.key)" wgport ${WG_PORT}
+    #wg genkey > ${CONF}_${PRIV_KEY}.key
+}
+genpub_key()
+{
+    ifconfig ${WG_INT} | grep wgpubkey | cut -d ' ' -f 2 > ${WG_PATH}/${CONF}_pub.key
+    #wg pubkey < ${CONF}_${PRIV_KEY}.key > ${CONF}_${PUB_KEY}.key
+}
+# Permission
+chmod 700 ${WG_PATH}/*.conf
+chmod 600 ${WG_PATH}/*.key
+
+# WG_INT config
+wg_config()
+{
+    echo "[Interface] \n\
+    PrivateKey = $(cat ${WG_PATH}/${CONF}_priv.key) \n\
+    ListenPort = ${WG_PORT}"\
+    > ${WG_PATH}/${CONF}.conf
+}
+interface && \
+genpriv_key && \
+genpub_key && \
+wg_config
+
