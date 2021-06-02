@@ -36,13 +36,13 @@ chmod 600 ${WG_PATH}/*.key
 client_config()
 {
 echo "[Interface] \n\
-    Address = ${CLIENT_IP} \n\
-    DNS = ${WG_IP} \n\
-    PrivateKey = $(cat ${WG_PATH}/${CLIENT}_priv.key) \n\
+Address = ${CLIENT_IP} \n\
+DNS = ${WG_IP} \n\
+PrivateKey = $(cat ${WG_PATH}/${CLIENT}_priv.key) \n\
 [Peer] \n\
-    PublicKey = $(cat ${WG_PATH}/${CONF}_pub.key) \n\
-    AllowedIPs = 0.0.0.0/32 \n\
-    Endpoint = ${EXT_IP}:${WG_PORT}"\
+PublicKey = $(cat ${WG_PATH}/${CONF}_pub.key) \n\
+AllowedIPs = 0.0.0.0/32 \n\
+Endpoint = ${EXT_IP}:${WG_PORT}"\
 > ${WG_PATH}/${CLIENT}.conf
 }
 
@@ -50,8 +50,8 @@ wg_config()
 {
 echo "# ${CLIENT} \n\
 [Peer] \n\
-    PublicKey = $(cat ${WG_PATH}/${CLIENT}_pub.key) \n\
-    AllowedIPs = ${CLIENT_IP}"\
+PublicKey = $(cat ${WG_PATH}/${CLIENT}_pub.key) \n\
+AllowedIPs = ${CLIENT_IP}"\
 >> ${WG_PATH}/${CONF}.conf
 }
 
