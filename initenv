@@ -1,0 +1,41 @@
+#!/bin/ksh
+# Initenv wgadmin
+logfile=/var/log/wginitenv.log
+WG_PATH=/etc/wireguard
+WG_IF_TMP=wg00
+WG_PORT_TMP=9999
+EXT_IP=
+
+# Redirect stderr to stdout to logfile
+exec 2>&1
+exec 1>>${logfile}
+
+ipforwarding()
+{
+  if
+    grep -q 'net.inet.ip.forwarding=1' /etc/sysctl.conf; then
+    echo "$(date) ip.forwarding OK"
+    else
+    echo 'net.inet.ip.forwarding=1' >> /etc/sysctl.conf
+  fi
+}
+
+install_requeriments()
+{
+pkg_add wireguard-tools sqlite3
+}
+
+create_usersdb()
+{
+sqlite3 ${WG_PATH}/users.sqlite << EOF
+CREATE TABLE IF NOT EXISTS users ( client, wg_if, wg_net, wg_port, mail, priv_key, pub_key )
+EOF
+}
+
+main()
+{
+ipforwarding
+install_requeriments
+create_usersdb
+}
+main $#
